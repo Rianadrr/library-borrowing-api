@@ -18,7 +18,7 @@ public class BorrowingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long borrowId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)

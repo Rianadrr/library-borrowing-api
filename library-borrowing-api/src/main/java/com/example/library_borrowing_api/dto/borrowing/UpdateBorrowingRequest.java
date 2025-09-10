@@ -1,5 +1,6 @@
 package com.example.library_borrowing_api.dto.borrowing;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -8,12 +9,11 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BorrowingResponse {
-    private Long id;
-    private String bookName;
-    private String isbn;
-    private String memberName;
-    private LocalDate borrowDate;
+public class UpdateBorrowingRequest {
+
+    @NotNull(message = "Status peminjaman tidak boleh kosong")
     private LocalDate returnDate;
+
+    @NotNull(message = "Status peminjaman tidak boleh kosong")
     private String status;
 }
