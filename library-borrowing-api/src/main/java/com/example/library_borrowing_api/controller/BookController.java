@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 public class BookController {
     public final BookRepository bookRepository;
 
@@ -51,7 +51,4 @@ public class BookController {
 
         return ResponseEntity.ok(responseAll);
     }
-
-    @GetMapping
-
 }

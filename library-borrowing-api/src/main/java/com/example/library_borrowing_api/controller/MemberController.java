@@ -1,5 +1,6 @@
 package com.example.library_borrowing_api.controller;
 
+import com.example.library_borrowing_api.dto.borrowing.BorrowingResponse;
 import com.example.library_borrowing_api.dto.member.CreateMemberRequest;
 import com.example.library_borrowing_api.dto.member.MemberResponse;
 import com.example.library_borrowing_api.entity.MemberEntity;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/members")
+@RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberRepository memberRepository;
@@ -63,5 +64,28 @@ public class MemberController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/{id}/borrowings")
+    public ResponseEntity<List<BorrowingResponse>> getBorrowingsByMember(@PathVariable Long id) {
+
+        MemberEntity member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        List<BorrowingResponse> borrowings = member.getBorrowing().stream()
+                .map(borrow -> BorrowingResponse.builder()
+                        .id(borrow.getId())
+                        .bookId(borrow.getBook().getId())
+                        .memberId(member.getId())
+                        .bookName(borrow.getBook().getBookName())
+                        .isbn(borrow.getBook().getIsbn())
+                        .memberName(member.getMemberName())
+                        .borrowDate(borrow.getBorrowDate())
+                        .returnDate(borrow.getReturnDate())
+                        .status(borrow.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(borrowings);
     }
 }

@@ -22,6 +22,7 @@ public class MemberEntity {
 
     private String memberName;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<BorrowingEntity> borrowing;
+
 }

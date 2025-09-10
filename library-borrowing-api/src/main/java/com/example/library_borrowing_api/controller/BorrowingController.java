@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/borrowings")
+@RequestMapping("/api/borrowings")
 public class BorrowingController {
 
     private final BorrowingRepository borrowingRepository;
@@ -28,13 +28,17 @@ public class BorrowingController {
     @PostMapping
     public ResponseEntity<BorrowingResponse> borrowBook(@RequestBody CreateBorrowingRequest request) {
         MemberEntity member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElse(null);
+
+        if (member == null) {
+            return ResponseEntity.status(404).body(null);
+        }
 
         BookEntity book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElse(null);
 
-        if (!book.getBorrowing().isEmpty()) {
-            throw new RuntimeException("Book is already borrowed");
+        if (book == null) {
+            return ResponseEntity.status(404).body(null);
         }
 
         if (member.getBorrowing().size() >= 5) {
@@ -54,6 +58,9 @@ public class BorrowingController {
                 .id(borrowing.getId())
                 .bookId (book.getId())
                 .memberId(member.getId())
+                .bookName(book.getBookName())
+                .isbn(book.getIsbn())
+                .memberName(member.getMemberName())
                 .borrowDate(borrowing.getBorrowDate())
                 .status(borrowing.getStatus())
                 .build());
@@ -62,13 +69,16 @@ public class BorrowingController {
     @GetMapping
     public ResponseEntity<List<BorrowingResponse>> getAllBorrowings() {
         List<BorrowingResponse> response = borrowingRepository.findAll().stream()
-                .map(b -> BorrowingResponse.builder()
-                        .id(b.getId())
-                        .bookId(b.getBook().getId())
-                        .memberId(b.getMember().getId())
-                        .borrowDate(b.getBorrowDate())
-                        .returnDate(b.getReturnDate())
-                        .status(b.getStatus())
+                .map(borrow -> BorrowingResponse.builder()
+                        .id(borrow.getId())
+                        .bookId(borrow.getBook().getId())
+                        .memberId(borrow.getMember().getId())
+                        .bookName(borrow.getBook().getBookName())
+                        .isbn(borrow.getBook().getIsbn())
+                        .memberName(borrow.getMember().getMemberName())
+                        .borrowDate(borrow.getBorrowDate())
+                        .returnDate(borrow.getReturnDate())
+                        .status(borrow.getStatus())
                         .build())
                 .collect(Collectors.toList());
 
@@ -77,35 +87,41 @@ public class BorrowingController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BorrowingResponse> getBorrowingById(@PathVariable Long id) {
-        BorrowingEntity borrowing = borrowingRepository.findById(id)
+        BorrowingEntity borrow = borrowingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Borrowing not found"));
 
         return ResponseEntity.ok(BorrowingResponse.builder()
-                .id(borrowing.getId())
-                .bookId(borrowing.getBook().getId())
-                .memberId(borrowing.getMember().getId())
-                .borrowDate(borrowing.getBorrowDate())
-                .returnDate(borrowing.getReturnDate())
-                .status(borrowing.getStatus())
+                .id(borrow.getId())
+                .bookId(borrow.getBook().getId())
+                .memberId(borrow.getMember().getId())
+                .bookName(borrow.getBook().getBookName())
+                .isbn(borrow.getBook().getIsbn())
+                .memberName(borrow.getMember().getMemberName())
+                .borrowDate(borrow.getBorrowDate())
+                .returnDate(borrow.getReturnDate())
+                .status(borrow.getStatus())
                 .build());
     }
 
     @PutMapping("/{id}/return")
     public ResponseEntity<BorrowingResponse> returnBook(@PathVariable Long id) {
-        BorrowingEntity borrowing = borrowingRepository.findById(id)
+        BorrowingEntity borrow = borrowingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Borrowing not found"));
 
-        borrowing.setReturnDate(LocalDate.now());
-        borrowing.setStatus("RETURNED");
-        borrowingRepository.save(borrowing);
+        borrow.setReturnDate(LocalDate.now());
+        borrow.setStatus("RETURNED");
+        borrowingRepository.save(borrow);
 
         return ResponseEntity.ok(BorrowingResponse.builder()
-                .id(borrowing.getId())
-                .bookId(borrowing.getBook().getId())
-                .memberId(borrowing.getMember().getId())
-                .borrowDate(borrowing.getBorrowDate())
-                .returnDate(borrowing.getReturnDate())
-                .status(borrowing.getStatus())
+                .id(borrow.getId())
+                .bookId(borrow.getBook().getId())
+                .memberId(borrow.getMember().getId())
+                .bookName(borrow.getBook().getBookName())
+                .isbn(borrow.getBook().getIsbn())
+                .memberName(borrow.getMember().getMemberName())
+                .borrowDate(borrow.getBorrowDate())
+                .returnDate(borrow.getReturnDate())
+                .status(borrow.getStatus())
                 .build());
     }
 }

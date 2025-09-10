@@ -10,6 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class BorrowingResponse {
     private Long id;
+    private Long bookId;
+    private Long memberId;
     private String bookName;
     private String isbn;
     private String memberName;
