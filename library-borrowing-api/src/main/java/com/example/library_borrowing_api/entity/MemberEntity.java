@@ -1,4 +1,25 @@
 package com.example.library_borrowing_api.entity;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "members")
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class MemberEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long memberId;
+
+    private String memberName;
+
+    @ManyToMany
+    private BorrowingEntity;
 }
