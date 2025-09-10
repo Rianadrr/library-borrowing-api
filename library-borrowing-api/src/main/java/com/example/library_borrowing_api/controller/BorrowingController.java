@@ -1,4 +1,111 @@
 package com.example.library_borrowing_api.controller;
 
+import com.example.library_borrowing_api.dto.borrowing.BorrowingResponse;
+import com.example.library_borrowing_api.dto.borrowing.CreateBorrowingRequest;
+import com.example.library_borrowing_api.entity.BookEntity;
+import com.example.library_borrowing_api.entity.BorrowingEntity;
+import com.example.library_borrowing_api.entity.MemberEntity;
+import com.example.library_borrowing_api.repository.BookRepository;
+import com.example.library_borrowing_api.repository.BorrowingRepository;
+import com.example.library_borrowing_api.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/borrowings")
 public class BorrowingController {
+
+    private final BorrowingRepository borrowingRepository;
+    private final MemberRepository memberRepository;
+    private final BookRepository bookRepository;
+
+    @PostMapping
+    public ResponseEntity<BorrowingResponse> borrowBook(@RequestBody CreateBorrowingRequest request) {
+        MemberEntity member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        BookEntity book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        if (!book.getBorrowing().isEmpty()) {
+            throw new RuntimeException("Book is already borrowed");
+        }
+
+        if (member.getBorrowing().size() >= 5) {
+            throw new RuntimeException("Member has already borrowed 5 books");
+        }
+
+        BorrowingEntity borrowing = BorrowingEntity.builder()
+                .book(book)
+                .member(member)
+                .borrowDate(LocalDate.now())
+                .status("BORROWED")
+                .build();
+
+        borrowingRepository.save(borrowing);
+
+        return ResponseEntity.ok(BorrowingResponse.builder()
+                .id(borrowing.getId())
+                .bookId (book.getId())
+                .memberId(member.getId())
+                .borrowDate(borrowing.getBorrowDate())
+                .status(borrowing.getStatus())
+                .build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BorrowingResponse>> getAllBorrowings() {
+        List<BorrowingResponse> response = borrowingRepository.findAll().stream()
+                .map(b -> BorrowingResponse.builder()
+                        .id(b.getId())
+                        .bookId(b.getBook().getId())
+                        .memberId(b.getMember().getId())
+                        .borrowDate(b.getBorrowDate())
+                        .returnDate(b.getReturnDate())
+                        .status(b.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BorrowingResponse> getBorrowingById(@PathVariable Long id) {
+        BorrowingEntity borrowing = borrowingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Borrowing not found"));
+
+        return ResponseEntity.ok(BorrowingResponse.builder()
+                .id(borrowing.getId())
+                .bookId(borrowing.getBook().getId())
+                .memberId(borrowing.getMember().getId())
+                .borrowDate(borrowing.getBorrowDate())
+                .returnDate(borrowing.getReturnDate())
+                .status(borrowing.getStatus())
+                .build());
+    }
+
+    @PutMapping("/{id}/return")
+    public ResponseEntity<BorrowingResponse> returnBook(@PathVariable Long id) {
+        BorrowingEntity borrowing = borrowingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Borrowing not found"));
+
+        borrowing.setReturnDate(LocalDate.now());
+        borrowing.setStatus("RETURNED");
+        borrowingRepository.save(borrowing);
+
+        return ResponseEntity.ok(BorrowingResponse.builder()
+                .id(borrowing.getId())
+                .bookId(borrowing.getBook().getId())
+                .memberId(borrowing.getMember().getId())
+                .borrowDate(borrowing.getBorrowDate())
+                .returnDate(borrowing.getReturnDate())
+                .status(borrowing.getStatus())
+                .build());
+    }
 }
