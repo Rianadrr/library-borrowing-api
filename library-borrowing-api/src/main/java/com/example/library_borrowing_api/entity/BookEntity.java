@@ -31,7 +31,7 @@ public class BookEntity {
     @Column(nullable = false)
     private String bookStatus;
 
-    @ManyToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BorrowingEntity> borrowing;
 
 

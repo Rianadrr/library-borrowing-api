@@ -22,6 +22,6 @@ public class MemberEntity {
 
     private String memberName;
 
-    @ManyToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<BorrowingEntity> borrowing;
 }
