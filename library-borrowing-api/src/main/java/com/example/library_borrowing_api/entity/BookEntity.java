@@ -28,9 +28,6 @@ public class BookEntity {
     @Column(nullable = false)
     private String bookName;
 
-    @Column(nullable = false)
-    private String bookStatus;
-
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BorrowingEntity> borrowing;
 
