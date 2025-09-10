@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "members")
 @Builder
@@ -20,6 +22,6 @@ public class MemberEntity {
 
     private String memberName;
 
-    @ManyToMany
-    private BorrowingEntity;
+    @ManyToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<BorrowingEntity> borrowing;
 }

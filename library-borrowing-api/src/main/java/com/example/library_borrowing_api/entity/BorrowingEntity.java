@@ -20,11 +20,13 @@ public class BorrowingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long borrowId;
 
-    @ManyToMany
-    private BookEntity;
+    @ManyToOne
+    @JoinColumn(name = "book_id", nullable = false)
+    private BookEntity book;
 
-    @ManyToMany
-    private MemberEntity;
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private MemberEntity member;
 
     @Column(nullable = false)
     private LocalDate borrowDate;
