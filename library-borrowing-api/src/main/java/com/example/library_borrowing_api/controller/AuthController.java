@@ -31,4 +31,6 @@ public class AuthController {
     public String tokenInfo(HttpServletRequest request) {
         return authService.getTokenInfo(request);
     }
+
+    //
 }
